@@ -13,7 +13,7 @@ class ImageViewController: UIViewController {
 	var image: String?
 	var animTimer: Timer?
 
-	var imageView: UIImageView!
+	var imageView: UIImageView?
 
 	override func loadView() {
 		super.loadView()
@@ -22,31 +22,37 @@ class ImageViewController: UIViewController {
 
 		// create an image view that fills the screen
 		imageView = UIImageView()
-		imageView.contentMode = .scaleAspectFit
-		imageView.translatesAutoresizingMaskIntoConstraints = false
-		imageView.alpha = 0
-
-		view.addSubview(imageView)
-
-		// make the image view fill the screen
-		imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-		imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-		imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-		imageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
-
-		// schedule an animation that does something vaguely interesting
-		animTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
-			// do something exciting with our image
-			self.imageView.transform = CGAffineTransform.identity
-
-			UIView.animate(withDuration: 3) {
-				self.imageView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-			}
-		}
+        
+        if let imageView = imageView {
+            imageView.contentMode = .scaleAspectFit
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.alpha = 0
+            
+            view.addSubview(imageView)
+            
+            // make the image view fill the screen
+            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+            imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+            imageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+            
+            // schedule an animation that does something vaguely interesting
+            animTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
+                // do something exciting with our image
+                imageView.transform = CGAffineTransform.identity
+                
+                UIView.animate(withDuration: 3) {
+                    imageView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+                }
+            }
+        }
+		
 	}
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        guard let imageView = imageView else { return }
 
         if let image = image {
             title = image.replacingOccurrences(of: "-Large.jpg", with: "")
@@ -66,16 +72,16 @@ class ImageViewController: UIViewController {
                 }
             }
         }
-		
     }
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
+        guard let imageView = imageView else { return }
 
 		imageView.alpha = 0
 
-		UIView.animate(withDuration: 3) { [unowned self] in
-			self.imageView.alpha = 1
+		UIView.animate(withDuration: 3) {
+            imageView.alpha = 1
 		}
 	}
     
