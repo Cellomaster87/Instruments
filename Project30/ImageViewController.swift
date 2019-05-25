@@ -10,7 +10,7 @@ import UIKit
 
 class ImageViewController: UIViewController {
 	weak var owner: SelectionViewController!
-	var image: String!
+	var image: String?
 	var animTimer: Timer!
 
 	var imageView: UIImageView!
@@ -48,22 +48,25 @@ class ImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-		title = image.replacingOccurrences(of: "-Large.jpg", with: "")
-        
-        if let path = Bundle.main.path(forResource: image, ofType: nil) {
-            if let original = UIImage(contentsOfFile: path) {
-                let renderer = UIGraphicsImageRenderer(size: original.size)
-                
-                let rounded = renderer.image { ctx in
-                    ctx.cgContext.addEllipse(in: CGRect(origin: CGPoint.zero, size: original.size))
-                    ctx.cgContext.closePath()
+        if let image = image {
+            title = image.replacingOccurrences(of: "-Large.jpg", with: "")
+            
+            if let path = Bundle.main.path(forResource: image, ofType: nil) {
+                if let original = UIImage(contentsOfFile: path) {
+                    let renderer = UIGraphicsImageRenderer(size: original.size)
                     
-                    original.draw(at: CGPoint.zero)
+                    let rounded = renderer.image { ctx in
+                        ctx.cgContext.addEllipse(in: CGRect(origin: CGPoint.zero, size: original.size))
+                        ctx.cgContext.closePath()
+                        
+                        original.draw(at: CGPoint.zero)
+                    }
+                    
+                    imageView.image = rounded
                 }
-                
-                imageView.image = rounded
             }
         }
+		
     }
 
 	override func viewDidAppear(_ animated: Bool) {
@@ -82,6 +85,8 @@ class ImageViewController: UIViewController {
     }
 
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let image = image else { return }
+        
 		let defaults = UserDefaults.standard
 		var currentVal = defaults.integer(forKey: image)
 		currentVal += 1

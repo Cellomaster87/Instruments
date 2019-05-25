@@ -9,7 +9,7 @@
 import UIKit
 
 class SelectionViewController: UITableViewController {
-	var items = [String]() // this is the array that will store the filenames to load
+	var items = [String]()
 	
 	var dirty = false
 
