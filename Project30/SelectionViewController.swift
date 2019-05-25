@@ -10,6 +10,7 @@ import UIKit
 
 class SelectionViewController: UITableViewController {
 	var items = [String]()
+    var images = [UIImage]()
 	
 	var dirty = false
 
@@ -30,6 +31,25 @@ class SelectionViewController: UITableViewController {
                 for item in tempItems {
                     if item.range(of: "Large") != nil {
                         items.append(item)
+                        
+                        let currentImage = item
+                        let imageRootName = currentImage.replacingOccurrences(of: "Large", with: "Thumb")
+                        
+                        if let path = Bundle.main.path(forResource: imageRootName, ofType: nil) {
+                            let original = UIImage(contentsOfFile: path)
+                            
+                            let renderRect = CGRect(origin: .zero, size: CGSize(width: 90, height: 90))
+                            let renderer = UIGraphicsImageRenderer(size: renderRect.size)
+                            
+                            let rounded = renderer.image { ctx in
+                                ctx.cgContext.addEllipse(in: renderRect)
+                                ctx.cgContext.clip()
+                                
+                                original?.draw(in: renderRect)
+                            }
+                            
+                            images.append(rounded)
+                        }
                     }
                 }
             }
@@ -58,31 +78,15 @@ class SelectionViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
 
-		// find the image for this cell, and load its thumbnail
-		let currentImage = items[indexPath.row % items.count]
-		let imageRootName = currentImage.replacingOccurrences(of: "Large", with: "Thumb")
+        let currentImage = items[indexPath.row % items.count]
+        let rounded = images[indexPath.row % images.count]
         
-        if let path = Bundle.main.path(forResource: imageRootName, ofType: nil) {
-            let original = UIImage(contentsOfFile: path)
-            
-            let renderRect = CGRect(origin: .zero, size: CGSize(width: 90, height: 90))
-            let renderer = UIGraphicsImageRenderer(size: renderRect.size)
-            
-            let rounded = renderer.image { ctx in
-                ctx.cgContext.addEllipse(in: renderRect)
-                ctx.cgContext.clip()
-                
-                original?.draw(in: renderRect)
-            }
-            
-            cell.imageView?.image = rounded
-            
-            cell.imageView?.layer.shadowColor = UIColor.black.cgColor
-            cell.imageView?.layer.shadowOpacity = 1
-            cell.imageView?.layer.shadowRadius = 10
-            cell.imageView?.layer.shadowOffset = CGSize.zero
-            cell.imageView?.layer.shadowPath = UIBezierPath(ovalIn: renderRect).cgPath
-        }
+        cell.imageView?.image = rounded
+        cell.imageView?.layer.shadowColor = UIColor.black.cgColor
+        cell.imageView?.layer.shadowOpacity = 1
+        cell.imageView?.layer.shadowRadius = 10
+        cell.imageView?.layer.shadowOffset = CGSize.zero
+        cell.imageView?.layer.shadowPath = UIBezierPath(ovalIn: CGRect(origin: .zero, size: CGSize(width: 90, height: 90))).cgPath
   
 		// each image stores how often it's been tapped
 		let defaults = UserDefaults.standard
@@ -101,4 +105,10 @@ class SelectionViewController: UITableViewController {
 
 		navigationController!.pushViewController(vc, animated: true)
 	}
+    
+    func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        
+        return paths[0]
+    }
 }

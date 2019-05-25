@@ -100,7 +100,7 @@ class ImageViewController: UIViewController {
 		var currentVal = defaults.integer(forKey: image)
 		currentVal += 1
 
-		defaults.set(currentVal, forKey:image)
+		defaults.set(currentVal, forKey: image)
 
 		// tell the parent view controller that it should refresh its table counters when we go back
 		owner.dirty = true
