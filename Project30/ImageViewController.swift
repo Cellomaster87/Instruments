@@ -11,7 +11,7 @@ import UIKit
 class ImageViewController: UIViewController {
 	weak var owner: SelectionViewController!
 	var image: String?
-	var animTimer: Timer!
+	var animTimer: Timer?
 
 	var imageView: UIImageView!
 
@@ -81,7 +81,10 @@ class ImageViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        animTimer.invalidate()
+        
+        guard let timer = animTimer else { return }
+        
+        timer.invalidate()
     }
 
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
