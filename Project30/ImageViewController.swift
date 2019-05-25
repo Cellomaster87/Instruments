@@ -49,19 +49,21 @@ class ImageViewController: UIViewController {
         super.viewDidLoad()
 
 		title = image.replacingOccurrences(of: "-Large.jpg", with: "")
-        let path = Bundle.main.path(forResource: image, ofType: nil)!
-		let original = UIImage(contentsOfFile: path)!
-
-		let renderer = UIGraphicsImageRenderer(size: original.size)
-
-		let rounded = renderer.image { ctx in
-			ctx.cgContext.addEllipse(in: CGRect(origin: CGPoint.zero, size: original.size))
-			ctx.cgContext.closePath()
-
-			original.draw(at: CGPoint.zero)
-		}
-
-		imageView.image = rounded
+        
+        if let path = Bundle.main.path(forResource: image, ofType: nil) {
+            if let original = UIImage(contentsOfFile: path) {
+                let renderer = UIGraphicsImageRenderer(size: original.size)
+                
+                let rounded = renderer.image { ctx in
+                    ctx.cgContext.addEllipse(in: CGRect(origin: CGPoint.zero, size: original.size))
+                    ctx.cgContext.closePath()
+                    
+                    original.draw(at: CGPoint.zero)
+                }
+                
+                imageView.image = rounded
+            }
+        }
     }
 
 	override func viewDidAppear(_ animated: Bool) {
