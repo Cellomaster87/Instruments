@@ -22,8 +22,7 @@ class SelectionViewController: UITableViewController {
 		tableView.rowHeight = 90
 		tableView.separatorStyle = .none
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
-
-		// load all the JPEGs into our array
+    
 		let fm = FileManager.default
         
         if let path = Bundle.main.resourcePath {
@@ -63,6 +62,12 @@ class SelectionViewController: UITableViewController {
 			tableView.reloadData()
 		}
 	}
+    
+    func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        
+        return paths[0]
+    }
 
     // MARK: - Table view data source
 	override func numberOfSections(in tableView: UITableView) -> Int {
@@ -105,10 +110,4 @@ class SelectionViewController: UITableViewController {
 
 		navigationController!.pushViewController(vc, animated: true)
 	}
-    
-    func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        
-        return paths[0]
-    }
 }
