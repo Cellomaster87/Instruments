@@ -2,8 +2,8 @@
 //  AppDelegate.swift
 //  Project30
 //
-//  Created by TwoStraws on 20/08/2016.
-//  Copyright (c) 2016 TwoStraws. All rights reserved.
+//  Created by Michele Galvagno on 12/04/2019.
+//  Copyright (c) 2019 Michele Galvagno. All rights reserved.
 //
 
 import UIKit

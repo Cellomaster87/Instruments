@@ -2,14 +2,17 @@
 //  SelectionViewController.swift
 //  Project30
 //
-//  Created by TwoStraws on 20/08/2016.
-//  Copyright (c) 2016 TwoStraws. All rights reserved.
+//  Created by Michele Galvagno on 12/04/2019.
+//  Copyright (c) 2019 Michele Galvagno. All rights reserved.
 //
 
 import UIKit
 
 class SelectionViewController: UITableViewController {
 	var items = [String]()
+    var savedImages = [String]()
+    var imageNames = [String]()
+    
     var images = [UIImage]()
 	
 	var dirty = false
@@ -25,33 +28,65 @@ class SelectionViewController: UITableViewController {
     
 		let fm = FileManager.default
         
-        if let path = Bundle.main.resourcePath {
-            if let tempItems = try? fm.contentsOfDirectory(atPath: path) {
-                for item in tempItems {
-                    if item.range(of: "Large") != nil {
-                        items.append(item)
-                        
-                        let currentImage = item
-                        let imageRootName = currentImage.replacingOccurrences(of: "Large", with: "Thumb")
-                        
-                        if let path = Bundle.main.path(forResource: imageRootName, ofType: nil) {
-                            let original = UIImage(contentsOfFile: path)
+        // Challenge 3 without the bonus
+        if savedImages.isEmpty {
+            print("No image found. Proceeding with image creation and rendering.")
+            if let path = Bundle.main.resourcePath {
+                if let tempItems = try? fm.contentsOfDirectory(atPath: path) {
+                    for item in tempItems {
+                        if item.range(of: "Large") != nil {
+                            items.append(item)
                             
-                            let renderRect = CGRect(origin: .zero, size: CGSize(width: 90, height: 90))
-                            let renderer = UIGraphicsImageRenderer(size: renderRect.size)
+                            let currentImage = item
+                            let imageRootName = currentImage.replacingOccurrences(of: "Large", with: "Thumb")
                             
-                            let rounded = renderer.image { ctx in
-                                ctx.cgContext.addEllipse(in: renderRect)
-                                ctx.cgContext.clip()
+                            if let path = Bundle.main.path(forResource: imageRootName, ofType: nil) {
+                                let original = UIImage(contentsOfFile: path)
                                 
-                                original?.draw(in: renderRect)
+                                let renderRect = CGRect(origin: .zero, size: CGSize(width: 90, height: 90))
+                                let renderer = UIGraphicsImageRenderer(size: renderRect.size)
+                                
+                                let rounded = renderer.image { ctx in
+                                    ctx.cgContext.addEllipse(in: renderRect)
+                                    ctx.cgContext.clip()
+                                    
+                                    original?.draw(in: renderRect)
+                                }
+                                
+                                images.append(rounded)
+                                
+                                // save compressed version to disk
+                                let imageName = UUID().uuidString
+                                let documentsDirectory = getDocumentsDirectory().appendingPathComponent(imageName)
+                                
+                                if let compressedImage = rounded.jpegData(compressionQuality: 0.8) {
+                                    try? compressedImage.write(to: documentsDirectory)
+                                    savedImages.append(documentsDirectory.path)
+                                    imageNames.append(imageName)
+                                }
                             }
-                            
-                            images.append(rounded)
                         }
+                    }
+                    print("Images rendered and saved")
+                }
+            }
+        } else {
+            // extract the images from disk and load them into the images array as we want to load UIImages, not strings.
+            print("Images found. Loading from disk now...")
+            images.removeAll(keepingCapacity: true) // in case something remained from a previous session.
+            
+            for imageName in imageNames {
+                let imagePath = getDocumentsDirectory().appendingPathComponent(imageName).path
+                
+                if fm.fileExists(atPath: imagePath) {
+                    if let image = UIImage(contentsOfFile: imagePath) {
+                        images.append(image)
+                    } else {
+                        print("Image not found at \(imagePath)")
                     }
                 }
             }
+            print("Loading complete. Enjoy!")
         }
     }
 
